@@ -1,11 +1,211 @@
-comment_text,num_replies,num_likes
-"I love this new shampoo! My hair feels amazing.",5,23
-"The packaging is so pretty, but the scent is too strong.",2,10
-"Great value for money. Will buy again!",1,15
-"Not suitable for sensitive skin.",3,8
-"Customer service was very helpful.",4,12
-"I wish it lasted longer.",0,5
-"Best conditioner I've ever used!",6,30
-"Too expensive for the quality.",1,7
-"My friends all recommended this product.",2,18
-"The results are visible after just one week!",3,20
+comment_text,num_replies,num_likes,theme_ground_truth
+This serum made my skin glow after just one week.,0,24,performance
+"Did not help with my acne, very disappointed.",1,17,performance
+Perfect moisturizer for humid weather.,1,22,performance
+This serum made my skin glow after just one week.,3,23,performance
+"Did not help with my acne, very disappointed.",8,14,performance
+Perfect moisturizer for humid weather.,6,17,performance
+"Did not help with my acne, very disappointed.",7,9,performance
+This serum made my skin glow after just one week.,2,15,performance
+Didn't notice any difference even after a month.,5,23,performance
+Keeps my hair smooth all day long.,1,31,performance
+This serum made my skin glow after just one week.,6,40,performance
+Perfect moisturizer for humid weather.,4,36,performance
+This serum made my skin glow after just one week.,7,0,performance
+Didn't notice any difference even after a month.,1,18,performance
+Perfect moisturizer for humid weather.,4,31,performance
+Keeps my hair smooth all day long.,9,12,performance
+"Did not help with my acne, very disappointed.",1,31,performance
+Keeps my hair smooth all day long.,1,27,performance
+"Did not help with my acne, very disappointed.",1,16,performance
+Keeps my hair smooth all day long.,2,32,performance
+Keeps my hair smooth all day long.,5,26,performance
+This serum made my skin glow after just one week.,9,32,performance
+"Did not help with my acne, very disappointed.",8,24,performance
+Didn't notice any difference even after a month.,4,19,performance
+Perfect moisturizer for humid weather.,3,17,performance
+This serum made my skin glow after just one week.,3,7,performance
+This serum made my skin glow after just one week.,5,21,performance
+Perfect moisturizer for humid weather.,5,27,performance
+"Did not help with my acne, very disappointed.",10,4,performance
+Didn't notice any difference even after a month.,2,25,performance
+Keeps my hair smooth all day long.,2,25,performance
+Keeps my hair smooth all day long.,9,37,performance
+Didn't notice any difference even after a month.,9,19,performance
+"Did not help with my acne, very disappointed.",8,29,performance
+Didn't notice any difference even after a month.,1,25,performance
+"Worth every cent, I would repurchase.",10,0,price
+"Worth every cent, I would repurchase.",10,16,price
+I only buy this when it's on sale.,9,21,price
+I only buy this when it's on sale.,8,19,price
+Too expensive for such a small bottle.,10,32,price
+Too expensive for such a small bottle.,10,32,price
+Affordable compared to similar products.,1,8,price
+Affordable compared to similar products.,6,20,price
+Affordable compared to similar products.,8,20,price
+"Worth every cent, I would repurchase.",8,37,price
+Affordable compared to similar products.,10,9,price
+Great value for money.,9,23,price
+"Worth every cent, I would repurchase.",8,29,price
+Great value for money.,0,10,price
+Too expensive for such a small bottle.,5,13,price
+Affordable compared to similar products.,3,39,price
+Too expensive for such a small bottle.,1,27,price
+I only buy this when it's on sale.,1,32,price
+"Worth every cent, I would repurchase.",2,18,price
+I only buy this when it's on sale.,8,26,price
+Great value for money.,6,30,price
+"Worth every cent, I would repurchase.",8,20,price
+Affordable compared to similar products.,6,4,price
+Affordable compared to similar products.,7,28,price
+"Worth every cent, I would repurchase.",3,13,price
+Too expensive for such a small bottle.,5,32,price
+Great value for money.,3,21,price
+Too expensive for such a small bottle.,1,19,price
+Too expensive for such a small bottle.,0,16,price
+Affordable compared to similar products.,1,11,price
+I only buy this when it's on sale.,3,19,price
+Great value for money.,2,16,price
+Great value for money.,7,0,price
+"Worth every cent, I would repurchase.",7,22,price
+Too expensive for such a small bottle.,10,13,price
+Bottle leaks when I travel with it.,5,8,packaging
+The pump broke after two uses.,10,23,packaging
+The pump broke after two uses.,0,10,packaging
+The pump broke after two uses.,3,23,packaging
+"Beautiful and sturdy packaging, feels luxurious.",3,12,packaging
+"Beautiful and sturdy packaging, feels luxurious.",4,16,packaging
+Bottle leaks when I travel with it.,3,20,packaging
+Compact and easy to carry in my bag.,1,15,packaging
+The pump broke after two uses.,10,37,packaging
+The pump broke after two uses.,3,17,packaging
+"Beautiful and sturdy packaging, feels luxurious.",6,11,packaging
+Bottle leaks when I travel with it.,0,18,packaging
+"Beautiful and sturdy packaging, feels luxurious.",6,27,packaging
+Bottle leaks when I travel with it.,4,18,packaging
+Bottle leaks when I travel with it.,8,11,packaging
+"Beautiful and sturdy packaging, feels luxurious.",4,8,packaging
+"Beautiful and sturdy packaging, feels luxurious.",0,7,packaging
+Too much plastic waste in the packaging.,0,12,packaging
+The pump broke after two uses.,9,0,packaging
+Compact and easy to carry in my bag.,2,21,packaging
+The pump broke after two uses.,8,23,packaging
+Compact and easy to carry in my bag.,1,21,packaging
+"Beautiful and sturdy packaging, feels luxurious.",6,33,packaging
+"Beautiful and sturdy packaging, feels luxurious.",9,32,packaging
+Compact and easy to carry in my bag.,0,10,packaging
+Compact and easy to carry in my bag.,9,10,packaging
+Compact and easy to carry in my bag.,5,24,packaging
+Too much plastic waste in the packaging.,3,15,packaging
+Too much plastic waste in the packaging.,6,27,packaging
+Bottle leaks when I travel with it.,5,28,packaging
+The pump broke after two uses.,0,0,packaging
+The pump broke after two uses.,1,27,packaging
+Compact and easy to carry in my bag.,3,12,packaging
+Too much plastic waste in the packaging.,1,17,packaging
+"Beautiful and sturdy packaging, feels luxurious.",5,15,packaging
+The natural oils in it are amazing.,4,32,ingredients
+The natural oils in it are amazing.,10,7,ingredients
+The natural oils in it are amazing.,4,19,ingredients
+Love that it's cruelty-free and vegan.,2,20,ingredients
+The natural oils in it are amazing.,2,42,ingredients
+"Happy it’s sulfate-free, works for my sensitive scalp.",4,9,ingredients
+Fragrance is too strong and caused irritation.,10,12,ingredients
+"Happy it’s sulfate-free, works for my sensitive scalp.",8,0,ingredients
+Love that it's cruelty-free and vegan.,1,23,ingredients
+Too many harsh chemicals in the formula.,4,30,ingredients
+Fragrance is too strong and caused irritation.,10,24,ingredients
+"Happy it’s sulfate-free, works for my sensitive scalp.",2,21,ingredients
+Too many harsh chemicals in the formula.,8,9,ingredients
+Love that it's cruelty-free and vegan.,1,40,ingredients
+Fragrance is too strong and caused irritation.,8,31,ingredients
+Love that it's cruelty-free and vegan.,5,17,ingredients
+Fragrance is too strong and caused irritation.,0,19,ingredients
+"Happy it’s sulfate-free, works for my sensitive scalp.",5,36,ingredients
+Love that it's cruelty-free and vegan.,5,11,ingredients
+Fragrance is too strong and caused irritation.,10,22,ingredients
+The natural oils in it are amazing.,6,26,ingredients
+The natural oils in it are amazing.,2,28,ingredients
+Fragrance is too strong and caused irritation.,2,18,ingredients
+Too many harsh chemicals in the formula.,0,31,ingredients
+Too many harsh chemicals in the formula.,10,42,ingredients
+Fragrance is too strong and caused irritation.,4,30,ingredients
+Too many harsh chemicals in the formula.,0,35,ingredients
+Too many harsh chemicals in the formula.,3,28,ingredients
+"Happy it’s sulfate-free, works for my sensitive scalp.",4,43,ingredients
+Fragrance is too strong and caused irritation.,3,28,ingredients
+"Happy it’s sulfate-free, works for my sensitive scalp.",4,22,ingredients
+Love that it's cruelty-free and vegan.,4,14,ingredients
+The natural oils in it are amazing.,5,31,ingredients
+Love that it's cruelty-free and vegan.,1,27,ingredients
+The natural oils in it are amazing.,4,16,ingredients
+Customer service was very helpful and quick.,1,7,service
+They replaced my damaged product immediately.,6,9,service
+Very smooth ordering process.,8,31,service
+"Shipping took forever, not impressed.",4,29,service
+Customer service was very helpful and quick.,6,37,service
+Very smooth ordering process.,10,15,service
+"Shipping took forever, not impressed.",5,0,service
+They replaced my damaged product immediately.,9,25,service
+They replaced my damaged product immediately.,10,24,service
+They replaced my damaged product immediately.,8,1,service
+They replaced my damaged product immediately.,10,6,service
+They replaced my damaged product immediately.,8,20,service
+"Shipping took forever, not impressed.",3,0,service
+"Shipping took forever, not impressed.",9,26,service
+Very smooth ordering process.,4,0,service
+They replaced my damaged product immediately.,4,25,service
+"Shipping took forever, not impressed.",6,18,service
+They replaced my damaged product immediately.,7,1,service
+Box was damaged on arrival.,7,9,service
+"Shipping took forever, not impressed.",10,4,service
+Customer service was very helpful and quick.,4,0,service
+They replaced my damaged product immediately.,1,13,service
+"Shipping took forever, not impressed.",10,8,service
+"Shipping took forever, not impressed.",0,31,service
+Customer service was very helpful and quick.,3,28,service
+Customer service was very helpful and quick.,7,13,service
+Box was damaged on arrival.,10,0,service
+Box was damaged on arrival.,7,7,service
+Box was damaged on arrival.,3,24,service
+Customer service was very helpful and quick.,6,27,service
+"Shipping took forever, not impressed.",2,20,service
+Box was damaged on arrival.,0,0,service
+Very smooth ordering process.,3,19,service
+"Shipping took forever, not impressed.",7,12,service
+Very smooth ordering process.,8,0,service
+Too much unnecessary wrapping.,9,3,sustainability
+Glad they are moving towards sustainability.,6,23,sustainability
+Wish they offered refill packs to reduce waste.,7,5,sustainability
+Too much unnecessary wrapping.,4,17,sustainability
+Love that the bottle is recyclable.,8,0,sustainability
+Too much unnecessary wrapping.,10,17,sustainability
+Love that the bottle is recyclable.,3,27,sustainability
+Love that the bottle is recyclable.,5,11,sustainability
+Wish they offered refill packs to reduce waste.,2,28,sustainability
+Wish they offered refill packs to reduce waste.,6,11,sustainability
+Eco-friendly packaging makes me want to repurchase.,6,2,sustainability
+Too much unnecessary wrapping.,5,7,sustainability
+Wish they offered refill packs to reduce waste.,6,14,sustainability
+Too much unnecessary wrapping.,9,18,sustainability
+Glad they are moving towards sustainability.,6,16,sustainability
+Too much unnecessary wrapping.,0,24,sustainability
+Too much unnecessary wrapping.,6,14,sustainability
+Glad they are moving towards sustainability.,8,23,sustainability
+Too much unnecessary wrapping.,3,0,sustainability
+Love that the bottle is recyclable.,6,7,sustainability
+Too much unnecessary wrapping.,2,17,sustainability
+Too much unnecessary wrapping.,2,29,sustainability
+Too much unnecessary wrapping.,9,15,sustainability
+Glad they are moving towards sustainability.,10,31,sustainability
+Wish they offered refill packs to reduce waste.,7,19,sustainability
+Wish they offered refill packs to reduce waste.,0,16,sustainability
+Too much unnecessary wrapping.,5,25,sustainability
+Love that the bottle is recyclable.,6,12,sustainability
+Too much unnecessary wrapping.,4,41,sustainability
+Eco-friendly packaging makes me want to repurchase.,7,29,sustainability
+Love that the bottle is recyclable.,3,18,sustainability
+Eco-friendly packaging makes me want to repurchase.,10,19,sustainability
+Wish they offered refill packs to reduce waste.,3,17,sustainability
+Eco-friendly packaging makes me want to repurchase.,9,19,sustainability
+Eco-friendly packaging makes me want to repurchase.,9,21,sustainability

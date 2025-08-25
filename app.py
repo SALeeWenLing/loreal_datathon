@@ -1,3 +1,11 @@
+'''
+Upload CSV of comments (with likes and replies), then run the app which uses BERTopic to extract topics from the comments.
+App aggregates engagement metrics (likes, replies, comment count) by topic. 
+We can modify the code and run the provided data when we get it. 
+
+*** Make sure you're using Python 3.8-3.11 or Streamlit/BERTopic won't work ***
+'''
+
 import streamlit as st
 import pandas as pd
 from bertopic import BERTopic

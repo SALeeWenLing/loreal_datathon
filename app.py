@@ -18,14 +18,33 @@ comments_files = st.sidebar.file_uploader("Upload comments CSV files", type=["cs
 videos_file = st.sidebar.file_uploader("Upload a videos CSV file", type=["csv"], key="videos")
 
 if comments_files and videos_file:
+
     # Concatenate all comments CSVs
     comments_dfs = [pd.read_csv(f) for f in comments_files]
     comments_df = pd.concat(comments_dfs, ignore_index=True)
     videos_df = pd.read_csv(videos_file)
+
+    # Rename comments columns to avoid conflicts
+    comments_df = comments_df.rename(columns={
+        "likeCount": "comment_likeCount"
+    })
+    # Rename videos columns to avoid conflicts
+    videos_df = videos_df.rename(columns={
+        "likeCount": "video_likeCount",
+        "viewCount": "video_viewCount",
+        "commentCount": "video_commentCount",
+        "favouriteCount": "video_favCount"
+    })
+
+    # DEBUG: Show raw data
+    st.write("Raw comments data:", comments_df.head())
+    print(comments_df.columns.tolist())
+    st.write("Raw videos data:", videos_df.head())
+    print(videos_df.columns.tolist())
+
     # Merge comments with videos on videoId
     merged_df = comments_df.merge(videos_df, on="videoId", how="left")
     st.write("Sample merged data:", merged_df.head())
-    # Use merged_df for all further filtering, scoring, and analysis
     df = merged_df
 
     # ----- Filter data: Remove spam/irrelevant comments -----
@@ -40,6 +59,9 @@ if comments_files and videos_file:
     # Comments with bad words
     df = df[~df["textOriginal"].str.contains("lesbian|morebadwords|morebadwords|morebadwords", case=False, na=False)] 
     # Others?
+
+    # DEBUG: Show filtered data
+    st.write("Filtered data:", df.head())
 
 #     # ----- Get most relevant comments -----
 

@@ -18,14 +18,33 @@ comments_files = st.sidebar.file_uploader("Upload comments CSV files", type=["cs
 videos_file = st.sidebar.file_uploader("Upload a videos CSV file", type=["csv"], key="videos")
 
 if comments_files and videos_file:
+
     # Concatenate all comments CSVs
     comments_dfs = [pd.read_csv(f) for f in comments_files]
     comments_df = pd.concat(comments_dfs, ignore_index=True)
     videos_df = pd.read_csv(videos_file)
+
+    # Rename comments columns to avoid conflicts
+    comments_df = comments_df.rename(columns={
+        "likeCount": "comment_likeCount"
+    })
+    # Rename videos columns to avoid conflicts
+    videos_df = videos_df.rename(columns={
+        "likeCount": "video_likeCount",
+        "viewCount": "video_viewCount",
+        "commentCount": "video_commentCount",
+        "favouriteCount": "video_favCount"
+    })
+
+    # DEBUG: Show raw data
+    st.write("Raw comments data:", comments_df.head())
+    print(comments_df.columns.tolist())
+    st.write("Raw videos data:", videos_df.head())
+    print(videos_df.columns.tolist())
+
     # Merge comments with videos on videoId
     merged_df = comments_df.merge(videos_df, on="videoId", how="left")
     st.write("Sample merged data:", merged_df.head())
-    # Use merged_df for all further filtering, scoring, and analysis
     df = merged_df
 
     # ----- Filter data: Remove spam/irrelevant comments -----
@@ -41,34 +60,46 @@ if comments_files and videos_file:
     df = df[~df["textOriginal"].str.contains("lesbian|morebadwords|morebadwords|morebadwords", case=False, na=False)] 
     # Others?
 
-#     # ----- Get most relevant comments -----
+    # DEBUG: Show filtered data
+    st.write("Filtered data:", df.head())
 
-#     # Calculate relevance score using likes and comment length
-#     df["relevance_score"] = (
-#         df["likeCount"].fillna(0) * 2 +  # Likes are weighted more
-#         df["textOriginal"].str.len().fillna(0) * 0.01  # Longer comments get a small boost
-#     )
+    # ----- Get most relevant comments -----
 
-#     # Normalize relevance score to 0-100 for easier comparison
-#     min_score = df["relevance_score"].min()
-#     max_score = df["relevance_score"].max()
-#     df["relevance_score_normalized"] = 100 * (df["relevance_score"] - min_score) / (max_score - min_score)
+    # Calculate relevance score using likes and comment length 
+    # TODO: REFINE SCORING METRIC
+    df["relevance_score"] = (
+        df["comment_likeCount"].fillna(0) * 2 +  # Likes are weighted more
+        df["textOriginal"].str.len().fillna(0) * 0.01  # Longer comments get a small boost
+    )
 
-#     # Show top comments by normalized relevance score
-#     st.subheader("Top Comments by Normalized Relevance Score")
-#     top_comments = df.sort_values("relevance_score_normalized", ascending=False).head(50)
-#     # Table: Top comments by relevance score
-#     st.write(top_comments[["textOriginal", "likeCount", "relevance_score_normalized"]]) 
-#     # Bar chart: Top comments by relevance score (ascending order)
-#     top_comments = top_comments.sort_values("relevance_score_normalized", ascending=True)
-#     fig = px.bar(
-#         top_comments,
-#         x="relevance_score_normalized",
-#         y="textOriginal",
-#         orientation="h",
-#         title="Top Comments by Normalized Relevance Score"
-#     )
-#     st.plotly_chart(fig)
+    # Normalize relevance score to 0-100 for easier comparison
+    min_score = df["relevance_score"].min()
+    max_score = df["relevance_score"].max()
+    df["relevance_score_normalized"] = 100 * (df["relevance_score"] - min_score) / (max_score - min_score)
+
+    # Show top comments by normalized relevance score
+    st.subheader("Top Comments by Normalized Relevance Score")
+    top_comments = df.sort_values("relevance_score_normalized", ascending=False).head(50)
+    # Table: Top comments by relevance score
+    st.write(top_comments[["videoId","textOriginal", "comment_likeCount", "relevance_score_normalized"]]) 
+    # Bar chart: Top comments by relevance score (ascending order)
+    top_comments = top_comments.sort_values("relevance_score_normalized", ascending=True)
+    fig = px.bar(
+        top_comments,
+        x="relevance_score_normalized",
+        y="textOriginal",
+        orientation="h",
+        title="Top Comments by Normalized Relevance Score"
+    )
+    st.plotly_chart(fig)
+
+    # ----- Aggregate comment-quality metrics per video -----
+    st.subheader("Video Engagement Metrics")
+
+    # ----- Compute SoE from the video columns -----
+
+    # ----- Join SoE × Quality and visualize -----
+
 
 #     # ----- Topic Modeling & Engagement Analysis -----
 

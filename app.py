@@ -1,4 +1,15 @@
 '''
+PROCESS:
+- Upload files (multiple comments CSV + single videos CSV)
+- Comments cleaned for spam/irrelevance
+- Comments merged with video metadata
+- Text is preprocessed (lowercase, remove punctuation, etc)
+- Topics are assigned to videos based on L'Oréal ontology (considers video title/description/tags + YouTube topicCategories)
+- Sentiment analysis and Share of Engagement (SoE) are computed for each video.
+- Relevance Scoring: Comments are scored and ranked by relevance and engagement.
+- Dashboard Visualization: Key metrics, charts, and top comments are displayed.
+- Export feature at bottom: Users can download the analysed data as a CSV.
+
 IMPORTANT:
 Make sure you're using Python 3.8-3.11 or Streamlit/BERTopic won't work
 '''

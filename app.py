@@ -50,7 +50,18 @@ if comments_files and videos_file:
     comments_df = DataLoader.standardize_comments(comments_df)
     videos_df   = DataLoader.standardize_videos(videos_df)
 
-    # Prune columns early for speed (analysis is reaaaally slow otherwise)
+    # ----- Clean comments -----
+    # Neutral anti-spam rules; but also avoid biased keyword lists as it might lead to unintended exclusion of valid comments
+    comments_df = comments_df[~comments_df["textOriginal"].str.contains("http|www\\.|bit\\.ly|free money|subscribe|click here",
+                                             case=False, na=False)]
+    comments_df = comments_df[~comments_df["textOriginal"].str.match(r"^[\W_]+$", na=False)]      # emoji/punct only
+    comments_df = comments_df[~comments_df["textOriginal"].str.match(r"^[@#].*", na=False)]       # single tag/mention
+    comments_df = comments_df[~comments_df["textOriginal"].str.match(r"^[0-9]+$", na=False)]      # numbers only
+    comments_df = comments_df[comments_df["textOriginal"].astype(str).str.len() >= min_comment_len]
+    st.write("Filtered data:", comments_df.head())
+
+    # ----- Prune columns early for speed -----
+    # (analysis is reaaaally slow otherwise)
     comments_df = comments_df[[
         "videoId","commentId","textOriginal","comment_likeCount"
     ]].copy()
@@ -63,16 +74,6 @@ if comments_files and videos_file:
     df = comments_df.merge(videos_df, on="videoId", how="left")
     st.write("Sample merged data:", df.head())
 
-    # ----- Clean comments ONCE -----
-    # Neutral anti-spam rules; avoid biased keyword lists
-    df = df[~df["textOriginal"].str.contains("http|www\\.|bit\\.ly|free money|subscribe|click here",
-                                             case=False, na=False)]
-    df = df[~df["textOriginal"].str.match(r"^[\W_]+$", na=False)]      # emoji/punct only
-    df = df[~df["textOriginal"].str.match(r"^[@#].*", na=False)]       # single tag/mention
-    df = df[~df["textOriginal"].str.match(r"^[0-9]+$", na=False)]      # numbers only
-    df = df[df["textOriginal"].astype(str).str.len() >= min_comment_len]
-    st.write("Filtered data:", df.head())
-
     # ----- Text preprocessing -----
     df["cleaned_text"] = df["textOriginal"].apply(Preprocessor.clean_comment)
     print("Comments after cleaning:\n", df["cleaned_text"].head())
@@ -83,8 +84,19 @@ if comments_files and videos_file:
     st.write("Topic samples:", video_topics.head())
     print("Video topics sample:", video_topics.head())
 
-    # ----- Sentiment Analysis -----
-    df["sentiment"] = df["textOriginal"].apply(Analyzer.get_sentiment)
+    # ----- Sentiment Analysis WITH PROGRESS BAR -----
+    st.write("Analyzing sentiment...")
+    progress_bar = st.progress(0)
+
+    batch_size = 1000
+    sentiments = []
+    for i in range(0, len(df), batch_size):
+        batch = df["textOriginal"].iloc[i:i+batch_size]
+        batch_sentiments = [Analyzer.get_sentiment(text) for text in batch]
+        sentiments.extend(batch_sentiments)
+        progress_bar.progress(min((i + batch_size) / len(df), 1.0))
+    
+    df["sentiment"] = sentiments
 
     # ----- SoE: compute ONCE per video, then merge (EXAMPLE ONLY) -----
     # TODO: REFORMULATE THIS
@@ -233,9 +245,10 @@ else:
 
 
 
-
-
-
+# Problem: Some videos come back as Other, e.g.:
+youtube#video,85806,2024-01-15 00:59:29+00:00,33807,Unlocking the Benefits of Face Masks for Skin Health,,,en-US,en-US,PT9S,72.0,0.0,0.0,0.0,"['https://en.wikipedia.org/wiki/Health', 'https://en.wikipedia.org/wiki/Lifestyle_(sociology)']"
+youtube#video,30556,2023-10-27 19:32:16+00:00,46650,Get ready for the Magic💚💜🤍💝✨ #hydration #glowingskin #nomakeuplook #skincare,,,,,PT45S,257.0,7.0,0.0,0.0,"['https://en.wikipedia.org/wiki/Lifestyle_(sociology)', 'https://en.wikipedia.org/wiki/Physical_attractiveness']"
+youtube#video,43611,2023-04-29 18:47:37+00:00,8143,Full Face of Merit Beauty 🤎 featuring new Flush Balm Shades! #merit #sephora #makeuptutorial,,,,en,PT56S,8647.0,268.0,0.0,7.0,"['https://en.wikipedia.org/wiki/Lifestyle_(sociology)', 'https://en.wikipedia.org/wiki/Physical_attractiveness']"
 
 
 

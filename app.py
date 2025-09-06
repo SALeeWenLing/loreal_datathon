@@ -1,7 +1,9 @@
 '''
 Make sure you're using Python 3.8-3.11 or Streamlit/BERTopic won't work
 '''
-
+# =====================================
+# 1. Setup & Imports
+# =====================================
 import streamlit as st
 import pandas as pd
 from bertopic import BERTopic
@@ -11,6 +13,10 @@ import os
 os.environ["NUMBA_THREADING_LAYER"] = "tbb" # Should fix Numba threading error???
 
 st.title("L'Oréal CommentSense: Topic & Engagement Analysis")
+
+# =====================================
+# 2. File Uploads (comments + videos)
+# =====================================
 
 # Sidebar for multiple file uploads
 st.sidebar.header("Upload CSV Files")
@@ -24,11 +30,15 @@ if comments_files and videos_file:
     comments_df = pd.concat(comments_dfs, ignore_index=True)
     videos_df = pd.read_csv(videos_file)
 
-    # Rename comments columns to avoid conflicts
+    # =====================================
+    # 3. Standardize Column Names
+    # =====================================
+
+    # Rename comments columns 
     comments_df = comments_df.rename(columns={
         "likeCount": "comment_likeCount"
     })
-    # Rename videos columns to avoid conflicts
+    # Rename videos columns 
     videos_df = videos_df.rename(columns={
         "likeCount": "video_likeCount",
         "viewCount": "video_viewCount",
@@ -42,12 +52,19 @@ if comments_files and videos_file:
     st.write("Raw videos data:", videos_df.head())
     print(videos_df.columns.tolist())
 
+    # =====================================
+    # 4. Merge Comments with Videos
+    # =====================================
+
     # Merge comments with videos on videoId
     merged_df = comments_df.merge(videos_df, on="videoId", how="left")
     st.write("Sample merged data:", merged_df.head())
     df = merged_df
 
-    # ----- Filter data: Remove spam/irrelevant comments -----
+    # =====================================
+    # 5. Clean Data
+    # =====================================
+
     # Comments with links or spammy phrases
     df = df[~df["textOriginal"].str.contains("http|www\\.|bit\\.ly|free money|subscribe|click here", case=False, na=False)] 
     # Comments that consist only of non-word characters (e.g., all emojis, punctuation)
@@ -60,22 +77,37 @@ if comments_files and videos_file:
     df = df[~df["textOriginal"].str.contains("lesbian|morebadwords|morebadwords|morebadwords", case=False, na=False)] 
     # Others?
 
+    # Remove (what else?)
+
+
+
     # DEBUG: Show filtered data
     st.write("Filtered data:", df.head())
 
-    # ----- Get most relevant comments -----
+    # =====================================
+    # 6. Per-Comment Features
+    #    - relevance_score 
+    #    - normalized relevance
+    # =====================================
 
-    # Calculate relevance score using likes and comment length 
+    # Calculate: 
+
+    # Calculate: Final relevance score 
     # TODO: REFINE SCORING METRIC
     df["relevance_score"] = (
-        df["comment_likeCount"].fillna(0) * 2 +  # Likes are weighted more
-        df["textOriginal"].str.len().fillna(0) * 0.01  # Longer comments get a small boost
+        df["comment_likeCount"].fillna(0) * 2 +  # EXAMPLE ONLY: Likes are weighted more
+        df["textOriginal"].str.len().fillna(0) * 0.01  # EXAMPLE ONLY: Longer comments get a small boost
     )
 
     # Normalize relevance score to 0-100 for easier comparison
     min_score = df["relevance_score"].min()
     max_score = df["relevance_score"].max()
     df["relevance_score_normalized"] = 100 * (df["relevance_score"] - min_score) / (max_score - min_score)
+
+    # =====================================
+    # 7. Top Comments View
+    #    - table + bar chart of most relevant comments
+    # =====================================
 
     # Show top comments by normalized relevance score
     st.subheader("Top Comments by Normalized Relevance Score")
@@ -93,38 +125,65 @@ if comments_files and videos_file:
     )
     st.plotly_chart(fig)
 
-    # ----- Aggregate comment-quality metrics per video -----
-    st.subheader("Video Engagement Metrics")
+    # =====================================
+    # 8. Aggregate Comment-Quality Metrics per Video
+    #    - n_comments
+    #    - median comment length
+    #    - mean comment likes
+    #    - % high-quality comments
+    # =====================================
+    st.subheader("Comment Metrics")
 
-    # ----- Compute SoE from the video columns -----
+    # =====================================
+    # 9. Compute SoE (Share of Engagement)
+    #    - E.g. (video_likeCount + video_commentCount + video_favCount) / video_viewCount
+    # ================================
+    st.subheader("Share of Engagement (SoE)")
 
-    # ----- Join SoE × Quality and visualize -----
+
+    # =====================================
+    # 10. Join SoE × Comment Quality
+    #     - final per-video dataset
+    #     - scatter (SoE vs quality)
+    #     - bar (top videos by % quality)
+    # =====================================
+    st.subheader("Engagement vs Comment Quality")
 
 
-#     # ----- Topic Modeling & Engagement Analysis -----
+    # =====================================
+    # 11. Sentiment Analysis
+    #     - label comments (positive/neutral/negative)
+    #     - aggregate % sentiment per video
+    # =====================================
+    st.subheader("Sentiment Analysis")
 
-#     # Topic modeling with BERTopic (only on top comments)
-#     st.subheader("Topic Modeling with BERTopic (Top Comments Only)")
-#     texts = top_comments["textOriginal"].dropna().astype(str)
 
-#     # DEBUG
-#     # st.write("Number of non-empty top comments for topic modeling:", len(texts))
-#     # st.write("Top comments for topic modeling:", texts.tolist())
+    # =====================================
+    # 12. Topic Modeling (BERTopic)
+    #     - run on top comments only
+    #     - show clusters of themes
+    # =====================================
+    st.subheader("Topic Modeling with BERTopic (Top Comments Only)")
+    texts = top_comments["textOriginal"].dropna().astype(str)
 
-#     if len(texts) < 5:
-#         st.warning("Not enough comments for meaningful topic modeling. Please upload more data.")
-#     else:
-#         with st.spinner("Extracting topics..."):
-#             topic_model = BERTopic()
-#             topics, probs = topic_model.fit_transform(texts.tolist())
-#             top_comments.loc[texts.index, "topic"] = topics
-#             topic_info = topic_model.get_topic_info()
-#             st.write("Topic summary (Top Comments Only):", topic_info)
+    # DEBUG
+    st.write("Number of non-empty top comments for topic modeling:", len(texts))
+    st.write("Top comments for topic modeling:", texts.tolist())
 
-#     # Merge comments with videos on videoId
-#     merged_df = df.merge(videos_df, on="videoId", how="left")
-#     st.write("Merged comments and videos data:", merged_df.head())
-#     # You can now use merged_df for further analysis, scoring, and topic modeling
+    if len(texts) < 5:
+        st.warning("Not enough comments for meaningful topic modeling. Please upload more data.") # Doesn't seem to work with too few comments  
+    else:
+        with st.spinner("Extracting topics..."):
+            topic_model = BERTopic()
+            topics, probs = topic_model.fit_transform(texts.tolist())
+            top_comments.loc[texts.index, "topic"] = topics
+            topic_info = topic_model.get_topic_info()
+            st.write("Topic summary (Top Comments Only):", topic_info)
+
+    # Merge comments with videos on videoId
+    merged_df = df.merge(videos_df, on="videoId", how="left")
+    st.write("Merged comments and videos data:", merged_df.head())
+    # You can now use merged_df for further analysis, scoring, and topic modeling
 
 else:
     st.info("Please upload comments and videos CSV files in the sidebar.")

@@ -38,3 +38,8 @@ urllib3==2.5.0
 # Topic modeling and plotting
 bertopic
 matplotlib
+nltk
+rake_nltk
+textblob
+wikipedia-api
+wordcloud

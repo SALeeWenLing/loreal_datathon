@@ -193,9 +193,13 @@ if comments_files and videos_file:
     st.subheader("High-Quality % by Business Category")
     cat_quality = (topic_df.groupby("business_category_primary")["is_high_quality_by_topic"]
                    .mean().mul(100).sort_values(ascending=False))
-    Visualizer.plot_bar(cat_quality.index, cat_quality.values,
-                        "Business Category", "% High-Quality (topic-aware)",
-                        "High-Quality Comments by Category")
+    Visualizer.plot_bar(
+        cat_quality.index, 
+        cat_quality.values,
+        "Business Category", 
+        "% High-Quality (topic-aware)",
+        "High-Quality Comments by Category"
+    )
 
     # SoE BY CATEGORY
     st.subheader("Average SoE by Category (Videos)")
@@ -206,9 +210,11 @@ if comments_files and videos_file:
     )
     soe_cat = per_video_with_cat.groupby("business_category_primary")["SoE"] \
                                 .mean().mul(100).sort_values(ascending=False)
-    Visualizer.plot_bar(soe_cat.index, soe_cat.values,
-                        "Business Category", "SoE (%)",
-                        "Average Share of Engagement by Category")
+    Visualizer.plot_bar(
+        soe_cat.index, 
+        soe_cat.values,
+        "Business Category", "SoE (%)",
+        "Average Share of Engagement by Category")
 
     # TOP COMMENTS (topic-aware)
     # i.e. Relevant to the video's topic
@@ -237,8 +243,11 @@ if comments_files and videos_file:
     st.subheader("Export Analyzed Data")
     if st.button("Download Analyzed Comments CSV"):
         csv = df.to_csv(index=False)
-        st.download_button(label="Download CSV", data=csv,
-                           file_name="loreal_analyzed_comments.csv", mime="text/csv")
+        st.download_button(
+            label="Download CSV", 
+            data=csv,
+            file_name="loreal_analyzed_comments.csv", 
+            mime="text/csv")
 else:
     st.info("Please upload comments and videos CSV files in the sidebar to begin analysis.")
 
@@ -246,9 +255,9 @@ else:
 
 
 # Problem: Some videos come back as Other, e.g.:
-youtube#video,85806,2024-01-15 00:59:29+00:00,33807,Unlocking the Benefits of Face Masks for Skin Health,,,en-US,en-US,PT9S,72.0,0.0,0.0,0.0,"['https://en.wikipedia.org/wiki/Health', 'https://en.wikipedia.org/wiki/Lifestyle_(sociology)']"
-youtube#video,30556,2023-10-27 19:32:16+00:00,46650,Get ready for the Magic💚💜🤍💝✨ #hydration #glowingskin #nomakeuplook #skincare,,,,,PT45S,257.0,7.0,0.0,0.0,"['https://en.wikipedia.org/wiki/Lifestyle_(sociology)', 'https://en.wikipedia.org/wiki/Physical_attractiveness']"
-youtube#video,43611,2023-04-29 18:47:37+00:00,8143,Full Face of Merit Beauty 🤎 featuring new Flush Balm Shades! #merit #sephora #makeuptutorial,,,,en,PT56S,8647.0,268.0,0.0,7.0,"['https://en.wikipedia.org/wiki/Lifestyle_(sociology)', 'https://en.wikipedia.org/wiki/Physical_attractiveness']"
+# youtube#video,85806,2024-01-15 00:59:29+00:00,33807,Unlocking the Benefits of Face Masks for Skin Health,,,en-US,en-US,PT9S,72.0,0.0,0.0,0.0,"['https://en.wikipedia.org/wiki/Health', 'https://en.wikipedia.org/wiki/Lifestyle_(sociology)']"
+# youtube#video,30556,2023-10-27 19:32:16+00:00,46650,Get ready for the Magic💚💜🤍💝✨ #hydration #glowingskin #nomakeuplook #skincare,,,,,PT45S,257.0,7.0,0.0,0.0,"['https://en.wikipedia.org/wiki/Lifestyle_(sociology)', 'https://en.wikipedia.org/wiki/Physical_attractiveness']"
+# youtube#video,43611,2023-04-29 18:47:37+00:00,8143,Full Face of Merit Beauty 🤎 featuring new Flush Balm Shades! #merit #sephora #makeuptutorial,,,,en,PT56S,8647.0,268.0,0.0,7.0,"['https://en.wikipedia.org/wiki/Lifestyle_(sociology)', 'https://en.wikipedia.org/wiki/Physical_attractiveness']"
 
 
 

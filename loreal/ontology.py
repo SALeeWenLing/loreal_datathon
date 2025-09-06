@@ -60,6 +60,25 @@ LOREAL_ONTOLOGY = {
             "in vitro", "in vivo", "dermatologist tested", "active ingredients",
             "non comedogenic", "hypoallergenic"
         ]
+    },
+    "Health & Wellness": {
+        "seeds": [
+            "health", "wellness", "healthy skin", "skin health", "nutrition", "lifestyle",
+            "physical attractiveness", "mental health", "self care", "fitness", "exercise", "holistic"
+        ],
+        "keywords": [
+            "health", "wellness", "healthy", "skin health", "nutrition", "lifestyle",
+            "physical attractiveness", "mental health", "self care", "fitness", "exercise", "holistic"
+        ]
+    },
+    "Fashion": {
+        "seeds": [
+            "fashion", "style", "outfit", "clothing", "runway", "trend", "designer", "couture"
+        ],
+        "keywords": [
+            "fashion", "style", "outfit", "clothing", "runway", "trend", "designer", "couture"
+        ]
     }
 }
+
 GENERIC_YT = {"Health", "Lifestyle (sociology)", "Entertainment", "Society"}

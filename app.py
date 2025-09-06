@@ -254,13 +254,13 @@ if comments_files and videos_file:
     # =====================================
     st.header("CommentSense Dashboard")
     
-    # Sample data for visualization 
-    sample_size = min(100000, len(topic_df)) # Apparently charts with >100k data points can freeze the browser
-    if len(topic_df) > sample_size:
-        st.warning(f"Sampling {sample_size:,} records from {len(topic_df):,} for visualization")
-        viz_topic_df = topic_df.sample(sample_size, random_state=42)
-    else:
-        viz_topic_df = topic_df
+    # # Sample data for visualization 
+    # sample_size = min(100000, len(topic_df)) # Apparently charts with >100k data points can freeze the browser
+    # if len(topic_df) > sample_size:
+    #     st.warning(f"Sampling {sample_size:,} records from {len(topic_df):,} for visualization")
+    #     viz_topic_df = topic_df.sample(sample_size, random_state=42)
+    # else:
+    #     viz_topic_df = topic_df
 
     # ----- Metrics -----
     col1, col2, col3, col4 = st.columns(4)
@@ -285,7 +285,7 @@ if comments_files and videos_file:
     # QUALITY BY BUSINESS CATEGORY
     # Something wrong with this. Not picking up any categories except Science/Ingredients
     st.subheader("High-Quality % by Business Category")
-    cat_quality = (viz_topic_df.groupby("business_category_primary")["is_high_quality_by_topic"]
+    cat_quality = (topic_df.groupby("business_category_primary")["is_high_quality_by_topic"]
                    .mean().mul(100).sort_values(ascending=False))
     Visualizer.plot_bar(
         cat_quality.index, 
@@ -313,10 +313,10 @@ if comments_files and videos_file:
     # TOP COMMENTS (topic-aware)
     # i.e. Relevant to the video's topic
     st.subheader("Top Comments (Topic-Aware Relevance)")
-    viz_topic_df["topic_for_video"] = viz_topic_df["video_topics"]
+    topic_df["topic_for_video"] = topic_df["video_topics"]
     topic_choice = st.selectbox("Filter by topic",
-                                ["All"] + sorted(viz_topic_df["topic_for_video"].dropna().unique().tolist()))
-    subset = viz_topic_df if topic_choice == "All" else viz_topic_df[viz_topic_df["topic_for_video"] == topic_choice]
+                                ["All"] + sorted(topic_df["topic_for_video"].dropna().unique().tolist()))
+    subset = topic_df if topic_choice == "All" else topic_df[topic_df["topic_for_video"] == topic_choice]
     topc = subset.sort_values(["relevance_topicaware","comment_likeCount"],
                               ascending=[False, False]).head(top_n_comments).copy()
     topc["short_text"] = truncate_text(topc["textOriginal"], truncate_n)

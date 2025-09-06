@@ -10,6 +10,7 @@ import os
 os.environ["NUMBA_THREADING_LAYER"] = "tbb"
 
 import numpy as np
+import pandas as pd
 import streamlit as st
 from loreal.utils import build_video_topics, calc_soe_table, truncate_text
 from loreal.data_loader import DataLoader
@@ -50,32 +51,92 @@ if comments_files and videos_file:
     comments_df = DataLoader.standardize_comments(comments_df)
     videos_df   = DataLoader.standardize_videos(videos_df)
 
-    # ----- Clean comments -----
+    # Show initial count
+    st.write(f"Original comments: {len(comments_df):,}")
+
+    # ----- Clean comments (BATCHED version as we have 5 million rows) -----
     # Neutral anti-spam rules; but also avoid biased keyword lists as it might lead to unintended exclusion of valid comments
-    comments_df = comments_df[~comments_df["textOriginal"].str.contains("http|www\\.|bit\\.ly|free money|subscribe|click here",
-                                             case=False, na=False)]
-    comments_df = comments_df[~comments_df["textOriginal"].str.match(r"^[\W_]+$", na=False)]      # emoji/punct only
-    comments_df = comments_df[~comments_df["textOriginal"].str.match(r"^[@#].*", na=False)]       # single tag/mention
-    comments_df = comments_df[~comments_df["textOriginal"].str.match(r"^[0-9]+$", na=False)]      # numbers only
-    comments_df = comments_df[comments_df["textOriginal"].astype(str).str.len() >= min_comment_len]
+    st.write("Filtering comments...")
+    progress_bar = st.progress(0)
+    
+    # Pre-compile regex patterns for faster matching
+    import re
+    spam_pattern = re.compile(r"http|www\.|bit\.ly|free money|subscribe|click here", re.IGNORECASE)
+    emoji_only_pattern = re.compile(r"^[\W_]+$")
+    tag_pattern = re.compile(r"^[@#].*")
+    numbers_only_pattern = re.compile(r"^[0-9]+$")
+    
+    # Process in batches
+    batch_size = 100000  # Adjust based on memory constraints
+    filtered_batches = []
+    total_batches = (len(comments_df) // batch_size) + 1
+    
+    for batch_num, i in enumerate(range(0, len(comments_df), batch_size)):
+        batch = comments_df.iloc[i:i+batch_size].copy()
+        text_batch = batch["textOriginal"].astype(str)
+        
+        # Create mask for this batch using pre-compiled patterns
+        mask = (
+            (text_batch.str.len() >= min_comment_len) &
+            (~text_batch.apply(lambda x: bool(spam_pattern.search(x)) if pd.notna(x) else False)) &
+            (~text_batch.apply(lambda x: bool(emoji_only_pattern.match(x)) if pd.notna(x) else False)) &
+            (~text_batch.apply(lambda x: bool(tag_pattern.match(x)) if pd.notna(x) else False)) &
+            (~text_batch.apply(lambda x: bool(numbers_only_pattern.match(x)) if pd.notna(x) else False))
+        )
+        
+        filtered_batches.append(batch[mask])
+        progress_bar.progress(min((i + batch_size) / len(comments_df), 1.0))
+        # st.write(f"Processed batch {batch_num + 1}/{total_batches}")
+
+    # Combine filtered batches
+    if filtered_batches:
+        comments_df = pd.concat(filtered_batches, ignore_index=True)
+    else:
+        comments_df = comments_df.iloc[0:0]  # Empty DataFrame
+    
+    st.write(f"After spam filtering: {len(comments_df):,} comments")
     st.write("Filtered data:", comments_df.head())
+    
+    # Early exit if no data remains
+    if len(comments_df) == 0:
+        st.warning("No comments remaining after filtering. Please adjust filter criteria.")
+        st.stop()
 
     # ----- Prune columns early for speed -----
     # (analysis is reaaaally slow otherwise)
     comments_df = comments_df[[
         "videoId","commentId","textOriginal","comment_likeCount"
     ]].copy()
+    
+    # Optimize data types
+    comments_df["comment_likeCount"] = comments_df["comment_likeCount"].fillna(0).astype(int)
+    comments_df["videoId"] = comments_df["videoId"].astype("category")
+    comments_df["commentId"] = comments_df["commentId"].astype("category")
+
     videos_df = videos_df[[
         "videoId","title","description","tags","topicCategories",
         "video_likeCount","video_commentCount","video_favCount","video_viewCount"
     ]].copy()
+    
+    # Only keep videos that have comments
+    videos_df = videos_df[videos_df["videoId"].isin(comments_df["videoId"].unique())]
 
     # ----- Merge comments with videos (on videoId) -----
     df = comments_df.merge(videos_df, on="videoId", how="left")
     st.write("Sample merged data:", df.head())
 
     # ----- Text preprocessing -----
-    df["cleaned_text"] = df["textOriginal"].apply(Preprocessor.clean_comment)
+    st.write("Cleaning text...")
+    progress_bar = st.progress(0)
+    
+    cleaned_texts = []
+    for i in range(0, len(df), batch_size):
+        batch = df["textOriginal"].iloc[i:i+batch_size]
+        cleaned_batch = [Preprocessor.clean_comment(text) for text in batch]
+        cleaned_texts.extend(cleaned_batch)
+        progress_bar.progress(min((i + batch_size) / len(df), 1.0))
+    
+    df["cleaned_text"] = cleaned_texts
     print("Comments after cleaning:\n", df["cleaned_text"].head())
 
     # ----- Topics: compute ONCE per video, then merge -----
@@ -88,13 +149,14 @@ if comments_files and videos_file:
     st.write("Analyzing sentiment...")
     progress_bar = st.progress(0)
 
-    batch_size = 1000
+    batch_size = 5000  # Smaller batch for sentiment analysis
     sentiments = []
     for i in range(0, len(df), batch_size):
         batch = df["textOriginal"].iloc[i:i+batch_size]
         batch_sentiments = [Analyzer.get_sentiment(text) for text in batch]
         sentiments.extend(batch_sentiments)
         progress_bar.progress(min((i + batch_size) / len(df), 1.0))
+        # st.write(f"Sentiment analysis: {min(i + batch_size, len(df)):,}/{len(df):,} comments")
     
     df["sentiment"] = sentiments
 
@@ -120,6 +182,7 @@ if comments_files and videos_file:
     df["relevance_raw"] = w_like*df["likes"] + w_len*df["comment_len"] + w_words*df["word_count"]
 
     # ----- Topic-aware ranking -----
+    st.write("Processing topic-aware ranking...")
 
     # Keep only relevant columns for topic-level scoring
     topic_df = df[[
@@ -128,15 +191,38 @@ if comments_files and videos_file:
 
     # Each comment may have multiple ontology topics (list)
     # Thus, need to explode so each (comment × topic) becomes its own row
-    topic_df = topic_df.explode("video_topics", ignore_index=True)
+    # Explode in batches to avoid memory issues
+    exploded_batches = []
+    for i in range(0, len(topic_df), batch_size):
+        batch = topic_df.iloc[i:i+batch_size].copy()
+        exploded_batch = batch.explode("video_topics", ignore_index=True)
+        exploded_batches.append(exploded_batch)
+    
+    topic_df = pd.concat(exploded_batches, ignore_index=True)
 
     # Fill missing topic labels with "Other" to avoid NaNs
     topic_df["video_topics"] = topic_df["video_topics"].fillna("Other")
 
     # ----- Relevance normalization within each topic -----
     # Scale raw relevance scores (calculated in relation to topic group), range 0-100
-    topic_df["relevance_norm_topic"] = topic_df.groupby("video_topics")["relevance_raw"] \
-                                               .transform(Analyzer.minmax_0_100)
+    # Process normalization in smaller groups to avoid memory issues
+    unique_topics = topic_df["video_topics"].unique()
+    progress_bar = st.progress(0)
+    
+    for i, topic in enumerate(unique_topics):
+        topic_mask = topic_df["video_topics"] == topic
+        topic_subset = topic_df[topic_mask]
+        
+        if len(topic_subset) > 0:
+            # Normalize relevance within topic
+            topic_df.loc[topic_mask, "relevance_norm_topic"] = Analyzer.minmax_0_100(
+                topic_subset["relevance_raw"]
+            )
+            
+            # Calculate SoE percentile
+            topic_df.loc[topic_mask, "soe_pct_topic"] = topic_subset["SoE"].rank(pct=True).fillna(0.5)
+        
+        progress_bar.progress((i + 1) / len(unique_topics))
 
     # ----- SoE percentile within each topic -----
     # Compute the percentile rank of each video's SoE inside that topic group, range 0–1
@@ -167,6 +253,14 @@ if comments_files and videos_file:
     # Dashboard
     # =====================================
     st.header("CommentSense Dashboard")
+    
+    # Sample data for visualization 
+    sample_size = min(100000, len(topic_df)) # Apparently charts with >100k data points can freeze the browser
+    if len(topic_df) > sample_size:
+        st.warning(f"Sampling {sample_size:,} records from {len(topic_df):,} for visualization")
+        viz_topic_df = topic_df.sample(sample_size, random_state=42)
+    else:
+        viz_topic_df = topic_df
 
     # ----- Metrics -----
     col1, col2, col3, col4 = st.columns(4)
@@ -191,7 +285,7 @@ if comments_files and videos_file:
     # QUALITY BY BUSINESS CATEGORY
     # Something wrong with this. Not picking up any categories except Science/Ingredients
     st.subheader("High-Quality % by Business Category")
-    cat_quality = (topic_df.groupby("business_category_primary")["is_high_quality_by_topic"]
+    cat_quality = (viz_topic_df.groupby("business_category_primary")["is_high_quality_by_topic"]
                    .mean().mul(100).sort_values(ascending=False))
     Visualizer.plot_bar(
         cat_quality.index, 
@@ -219,10 +313,10 @@ if comments_files and videos_file:
     # TOP COMMENTS (topic-aware)
     # i.e. Relevant to the video's topic
     st.subheader("Top Comments (Topic-Aware Relevance)")
-    topic_df["topic_for_video"] = topic_df["video_topics"]
+    viz_topic_df["topic_for_video"] = viz_topic_df["video_topics"]
     topic_choice = st.selectbox("Filter by topic",
-                                ["All"] + sorted(topic_df["topic_for_video"].dropna().unique().tolist()))
-    subset = topic_df if topic_choice == "All" else topic_df[topic_df["topic_for_video"] == topic_choice]
+                                ["All"] + sorted(viz_topic_df["topic_for_video"].dropna().unique().tolist()))
+    subset = viz_topic_df if topic_choice == "All" else viz_topic_df[viz_topic_df["topic_for_video"] == topic_choice]
     topc = subset.sort_values(["relevance_topicaware","comment_likeCount"],
                               ascending=[False, False]).head(top_n_comments).copy()
     topc["short_text"] = truncate_text(topc["textOriginal"], truncate_n)
@@ -250,7 +344,6 @@ if comments_files and videos_file:
             mime="text/csv")
 else:
     st.info("Please upload comments and videos CSV files in the sidebar to begin analysis.")
-
 
 
 

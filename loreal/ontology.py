@@ -7,7 +7,7 @@ LOREAL_ONTOLOGY: A dictionary mapping beauty topics to their representative phra
 GENERIC_YT: A set of generic YouTube topics that are down-weighted in scoring to avoid over-classification.
 '''
 
-LOREAL_ONTOLOGY = {
+LOREAL_ONTOLOGY= {
     "Makeup": {
         "seeds": [
             "makeup", "cosmetics", "foundation", "concealer", "mascara", "eyeliner",
@@ -77,6 +77,46 @@ LOREAL_ONTOLOGY = {
         ],
         "keywords": [
             "fashion", "style", "outfit", "clothing", "runway", "trend", "designer", "couture"
+        ]
+    },
+    "Nails": {
+        "seeds": [
+            "nail care", "manicure", "pedicure", "nail polish", "gel nails", "nail art",
+            "cuticle care", "nail salon", "OPI", "Essie", "Sally Hansen"
+        ],
+        "keywords": [
+            "nail polish", "gel nails", "manicure", "pedicure", "nail art", "cuticle care",
+            "opi", "essie", "sally hansen", "nail salon"
+        ]
+    },
+    "Men's Grooming": {
+        "seeds": [
+            "men's grooming", "beard care", "shaving", "hair styling", "men's skincare",
+            "aftershave", "men's fragrance", "L'Oréal Men Expert", "Nivea Men", "Old Spice"
+        ],
+        "keywords": [
+            "beard oil", "shaving cream", "men's skincare", "aftershave", "men's fragrance",
+            "loreal men expert", "nivea men", "old spice"
+        ]
+    },
+    "Sustainable Beauty": {
+        "seeds": [
+            "sustainable beauty", "eco-friendly", "cruelty-free", "organic", "natural ingredients",
+            "green beauty", "zero waste", "recyclable packaging", "clean beauty"
+        ],
+        "keywords": [
+            "eco-friendly", "cruelty-free", "organic", "natural ingredients", "green beauty",
+            "zero waste", "recyclable packaging", "clean beauty"
+        ]
+    },
+    "Beauty Tech": {
+        "seeds": [
+            "beauty tech", "smart skincare", "AI beauty", "skin analysis devices", "LED masks",
+            "beauty apps", "virtual try-on", "3D printed beauty", "smart mirrors"
+        ],
+        "keywords": [
+            "smart skincare", "AI beauty", "skin analysis devices", "LED masks", "beauty apps",
+            "virtual try-on", "3D printed beauty", "smart mirrors"
         ]
     }
 }
